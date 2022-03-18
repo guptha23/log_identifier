@@ -99,7 +99,7 @@ if keyword is not None:
         list_of_matches = []
 
         for keyword in keywords:
-            list_of_matches += [m.start() for m in re.finditer(keyword, bytes_data)]
+            list_of_matches += [m.start() for m in re.finditer(keyword, bytes_data,  re.IGNORECASE)]
 
         process_key_matches(bytes_data, list_of_matches)
 
@@ -110,7 +110,7 @@ if keyword is not None:
     #     list_of_matches_dict = {}
 
     #     for keyword in keywords:
-    #         list_of_matches_dict[keyword] = [m.start() for m in re.finditer(keyword, bytes_data)]
+    #         list_of_matches_dict[keyword] = [m.start() for m in re.finditer(keyword, bytes_data, re.IGNORECASE)]
 
     #     print(list_of_matches_dict)
 
@@ -122,7 +122,7 @@ if keyword is not None:
 
     else:
 
-        list_of_matches = [m.start() for m in re.finditer(keyword, bytes_data)]
+        list_of_matches = [m.start() for m in re.finditer(keyword, bytes_data, re.IGNORECASE)]
         process_key_matches(bytes_data, list_of_matches)
             
 
