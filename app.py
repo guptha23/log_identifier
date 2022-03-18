@@ -10,9 +10,51 @@ def print_large_text(text):
     text = text.replace("\n\tat", " at")
     text = text.replace("\n", " ")
     text = text.replace("\t", " ")
-    text_wrapper = textwrap.TextWrapper(width=100)
+    text_wrapper = textwrap.TextWrapper(width=75)
     wrapped_text_list = text_wrapper.wrap(text)
     return "\n".join(wrapped_text_list)
+
+
+def process_key_matches(bytes_data, list_of_matches):
+    """ helper function to process list of matches found. """
+
+    st.metric("Number of matches found : ", len(list_of_matches))
+
+    choice = st.number_input("Pick the required match ", 1, len(list_of_matches))
+
+    if len(list_of_matches) > 0 and choice < len(list_of_matches):
+        
+        number = choice - 1
+        count = int(2000)
+
+        char_index = int(list_of_matches[number])
+
+        st.write(f"Getting the {choice} match :")
+
+        print_prev_info = st.checkbox("log previous information")
+
+        if print_prev_info:
+            text = bytes_data[char_index - 500 : char_index].replace("\n\t", " ")
+
+            st.code("> " + print_large_text(text), language="shell")
+
+        text = bytes_data[char_index : char_index + count].replace("\n\t", " ")
+
+        st.code("> " + print_large_text(text), language="shell")
+
+        print_next_info = st.checkbox("log next information")
+
+
+        if print_next_info:
+            text = bytes_data[char_index + count : char_index + count + 500].replace("\n\t", " ")
+
+            st.code("> " + print_large_text(text), language="shell")
+
+
+
+    else:
+        st.write("No suitable match found")
+
 
 st.title("Log Helper - Find things easily with logs...")
 
@@ -49,32 +91,38 @@ list_of_matches = []
 
 if keyword is not None:
 
-    list_of_matches = [m.start() for m in re.finditer(keyword, bytes_data)]
-    st.metric("Number of matches found : ", len(list_of_matches))
 
-    choice = st.number_input("Pick the required match ", 1, len(list_of_matches)+1)
+    if "|" in keyword:
+        keywords = keyword.split("|")
+        keywords = [word.strip() for word in keywords]
 
-    if len(list_of_matches) > 0 and choice < len(list_of_matches):
-        
-        number = choice - 1
-        count = int(2000)
-        char_index = int(list_of_matches[number])
-        st.write(f"Getting the {choice} match :")
+        list_of_matches = []
 
-        text = bytes_data[char_index : char_index + count].replace("\n\t", " ")
+        for keyword in keywords:
+            list_of_matches += [m.start() for m in re.finditer(keyword, bytes_data)]
 
-        st.code("> " + print_large_text(text), language="shell")
+        process_key_matches(bytes_data, list_of_matches)
 
-        print_more_info = st.checkbox("log more information")
+    # elif "&" in keyword:
+    #     keywords = keyword.split("&")
+    #     keywords = [word.strip() for word in keywords]
 
-        if print_more_info:
-            count += 4000
-            text = bytes_data[char_index : char_index + count].replace("\n\t", " ")
+    #     list_of_matches_dict = {}
 
-            st.code("> " + print_large_text(text), language="shell")
+    #     for keyword in keywords:
+    #         list_of_matches_dict[keyword] = [m.start() for m in re.finditer(keyword, bytes_data)]
+
+    #     print(list_of_matches_dict)
+
+    #     list_of_lists = list(list_of_matches_dict.values())
+    #     list_of_matches = list(set.intersection(*map(set,list_of_lists)))
+    #     print("list of matches : ",list_of_matches)
+
+    #     process_key_matches(bytes_data, list_of_matches)
 
     else:
-        st.write("No suitable match found")
 
-        
+        list_of_matches = [m.start() for m in re.finditer(keyword, bytes_data)]
+        process_key_matches(bytes_data, list_of_matches)
+            
 
