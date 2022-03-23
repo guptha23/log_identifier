@@ -103,22 +103,28 @@ if keyword is not None:
 
         process_key_matches(bytes_data, list_of_matches)
 
-    # elif "&" in keyword:
-    #     keywords = keyword.split("&")
-    #     keywords = [word.strip() for word in keywords]
+    elif "&" in keyword:
+        keywords = keyword.split("&")
+        keywords = [word.strip() for word in keywords]
 
-    #     list_of_matches_dict = {}
+        list_of_matches_dict = {}
 
-    #     for keyword in keywords:
-    #         list_of_matches_dict[keyword] = [m.start() for m in re.finditer(keyword, bytes_data, re.IGNORECASE)]
+        list_of_lines_dict = {}
 
-    #     print(list_of_matches_dict)
+        for keyword in keywords:
+            list_of_matches_dict[keyword] = [m.start() for m in re.finditer(keyword, bytes_data, re.IGNORECASE)]
 
-    #     list_of_lists = list(list_of_matches_dict.values())
-    #     list_of_matches = list(set.intersection(*map(set,list_of_lists)))
-    #     print("list of matches : ",list_of_matches)
 
-    #     process_key_matches(bytes_data, list_of_matches)
+        for keyword, list_of_char in list_of_matches_dict.items():
+            list_of_line = [int(x/100) for x in list_of_char]
+            list_of_lines_dict[keyword] = list_of_line
+
+        list_of_lists = list(list_of_lines_dict.values())
+        list_of_matches = list(set.intersection(*map(set,list_of_lists)))
+
+        list_of_matches = [int(x * 100) for x in list_of_matches]
+
+        process_key_matches(bytes_data, list_of_matches)
 
     else:
 
